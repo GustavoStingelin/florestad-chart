@@ -1,13 +1,12 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "florestad-chart.fullname" . }}
   labels:
     {{- include "florestad-chart.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
+  serviceName: {{ include "florestad-chart.fullname" . }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
       {{- include "florestad-chart.selectorLabels" . | nindent 6 }}
@@ -27,23 +26,35 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "florestad-chart.serviceAccountName" . }}
       {{- with .Values.podSecurityContext }}
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        - name: {{ include "florestad-chart.name" . }}
+          image: {{ include "florestad-chart.image" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
+            - name: rpc
+              containerPort: 8332
+            - name: electrum
+              containerPort: 50001
+            - name: metrics
+              containerPort: 3333
+          command:
+            - florestad
+          args:
+            - "-c"
+            - "/config/config.toml"
+            - "--network"
+            - "{{ .Values.florestad.network }}"
+            - "--data-dir"
+            - "{{ .Values.florestad.dataDir }}"
+          volumeMounts:
+            - name: data
+              mountPath: {{ .Values.florestad.dataDir }}
+            - name: config
+              mountPath: /config
           {{- with .Values.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
@@ -56,14 +67,13 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.volumeMounts }}
-          volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
+
       volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        - name: data
+          emptyDir: {}
+        - name: config
+          configMap:
+            name: {{ include "florestad-chart.fullname" . }}-config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

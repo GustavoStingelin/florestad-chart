@@ -51,12 +51,14 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Create the name of the service account to use
+Create the image reference with priority: sha > tag > appVersion
 */}}
-{{- define "florestad-chart.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "florestad-chart.fullname" .) .Values.serviceAccount.name }}
+{{- define "florestad-chart.image" -}}
+{{- if .Values.image.sha }}
+{{- printf "%s@%s" .Values.image.repository .Values.image.sha }}
+{{- else if .Values.image.tag }}
+{{- printf "%s:%s" .Values.image.repository .Values.image.tag }}
 {{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+{{- printf "%s:%s" .Values.image.repository .Chart.AppVersion }}
 {{- end }}
 {{- end }}

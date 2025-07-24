@@ -7,9 +7,14 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+    - name: rpc
+      port: {{ .Values.service.rpc.port }}
+      targetPort: rpc
+    - name: electrum
+      port: {{ .Values.service.electrum.port }}
+      targetPort: electrum
+    - name: metrics
+      port: {{ .Values.service.metrics.port }}
+      targetPort: metrics
   selector:
     {{- include "florestad-chart.selectorLabels" . | nindent 4 }}
