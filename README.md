@@ -1,3 +1,8 @@
+[![Artifact Hub][artifact-hub-badge]][artifact-hub-link]
+
+[artifact-hub-badge]: https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/florestad
+[artifact-hub-link]: https://artifacthub.io/packages/search?repo=florestad
+
 # Florestad Helm Chart
 
 ## Usage Example with Minikube
