@@ -33,5 +33,29 @@
    ```
 ---
 
-For more configuration options, see `values.yaml` and `/examples`.
+## Usage Example with Terraform
 
+> The `values` argument in the `helm_release` resource allows you to pass custom configuration to Helm chart. In this example, it loads values from the `florestad-values.yaml` file, which should match the structure expected by the chart (see `/examples` for reference).
+
+```hcl
+resource "kubernetes_namespace" "floresta" {
+  metadata {
+    name = "floresta"
+  }
+}
+
+resource "helm_release" "florestad" {
+  name       = "florestad"
+  chart      = "florestad-chart"
+  repository = "https://gustavostingelin.github.io/florestad-chart/charts"
+  namespace  = kubernetes_namespace.floresta.metadata[0].name
+  create_namespace = true
+  values = [
+    file("${path.module}/helm/florestad-values.yaml")
+  ]
+}
+```
+
+---
+
+For more configuration options, see `values.yaml` and `/examples`.
