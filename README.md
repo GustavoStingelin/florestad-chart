@@ -5,6 +5,8 @@
 
 # Florestad Helm Chart
 
+> This chart is a Kubernetes packaging of [Floresta](https://github.com/vinteumorg/Floresta), an open-source utreexo node. It provides an easy way to deploy Floresta on Kubernetes clusters using Helm.
+
 ## Usage Example with Minikube
 
 1. **Start Minikube:**
@@ -59,3 +61,5 @@ resource "helm_release" "florestad" {
 ---
 
 For more configuration options, see `values.yaml` and `/examples`.
+
+For more information, see the [official Floresta project](https://github.com/vinteumorg/Floresta).
